@@ -210,15 +210,26 @@ def main():
     te_features = [col + '_target_enc' for col in cat_cols_for_te]
 
     # 3. Label Encoding（分别处理）
+    # print(f"[{time.strftime('%H:%M:%S')}] Label Encoding...")
+    # all_cat_features = sparse_cols + bin_cols + [col+'_miss' for col in dense_cols]
+    # for feat in all_cat_features:
+    #     le = LabelEncoder()
+    #     train_vals = train_df[feat].astype(str).values
+    #     test_vals = test_df[feat].astype(str).values
+    #     le.fit(train_vals)
+    #     train_df[feat] = le.transform(train_vals).astype(np.int32)
+    #     test_df[feat] = le.transform(test_vals).astype(np.int32)
+
+
     print(f"[{time.strftime('%H:%M:%S')}] Label Encoding...")
     all_cat_features = sparse_cols + bin_cols + [col+'_miss' for col in dense_cols]
     for feat in all_cat_features:
         le = LabelEncoder()
-        train_vals = train_df[feat].astype(str).values
-        test_vals = test_df[feat].astype(str).values
-        le.fit(train_vals)
-        train_df[feat] = le.transform(train_vals).astype(np.int32)
-        test_df[feat] = le.transform(test_vals).astype(np.int32)
+        all_vals = pd.concat([train_df[feat], test_df[feat]], axis=0).astype(str)
+        le.fit(all_vals)
+
+        train_df[feat] = le.transform(train_df[feat].astype(str)).astype(np.int32)
+        test_df[feat] = le.transform(test_df[feat].astype(str)).astype(np.int32)
 
     # 4. 准备特征列定义
     sparse_features = all_cat_features
